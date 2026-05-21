@@ -1,0 +1,11 @@
+product_id,product_name,category,price,stock_quantity
+P001,Running Shoes Pro,Footwear,89.99,150
+P002,Yoga Mat Premium,Sports,34.99,200
+P003,Wireless Headphones,Electronics,129.99,75
+P004,Winter Jacket,Clothing,159.99,60
+P005,Coffee Maker Deluxe,Kitchen,79.99,90
+P006,Leather Wallet,Accessories,49.99,120
+P007,Fitness Tracker,Electronics,99.99,85
+P008,Cooking Book Vol.1,Books,24.99,300
+P009,Sunglasses Classic,Accessories,59.99,110
+P010,Backpack Explorer,Bags,74.99,95

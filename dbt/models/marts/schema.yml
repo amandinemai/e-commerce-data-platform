@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: "Final orders fact table joining orders, customers and products"
+    columns:
+      - name: order_id
+        description: "Unique order identifier"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Reference to the customer"
+        tests:
+          - not_null
+      - name: product_id
+        description: "Reference to the product"
+        tests:
+          - not_null
+      - name: order_status
+        description: "Current status of the order"
+        tests:
+          - accepted_values:
+              name: accepted_values_fct_order_status
+              values: ['completed', 'shipped', 'cancelled', 'pending']
+      - name: total_amount
+        description: "Total order amount in euros"
+        tests:
+          - not_null
+      - name: order_date
+        description: "Date the order was placed"
+        tests:
+          - not_null
+      - name: country
+        description: "Customer country"
+        tests:
+          - not_null
+      - name: category
+        description: "Product category"
+        tests:
+          - not_null
+
+  - name: fct_revenue
+    description: "Daily revenue aggregated by country, category and campaign"
+    columns:
+      - name: order_date
+        description: "Date of the orders"
+        tests:
+          - not_null
+      - name: total_revenue
+        description: "Sum of completed order amounts"
+        tests:
+          - not_null
+      - name: total_orders
+        description: "Number of completed orders"
+        tests:
+          - not_null

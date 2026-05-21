@@ -1,26 +1,36 @@
-🛒 E-commerce Data Platform
-Pipeline de données end-to-end pour l'analyse e-commerce, intégrant Salesforce Marketing Cloud, BigQuery, dbt, Airflow et un pipeline CI/CD avec GitHub Actions.
+# 🛒 E-commerce Data Platform
+
+End-to-end data pipeline for e-commerce analytics, integrating **Salesforce Marketing Cloud**, **BigQuery**, **dbt**, **Airflow** and a **CI/CD** pipeline with GitHub Actions.
+
 ---
-📐 Architecture
+
+## 📐 Architecture
+
 ```
-Salesforce MC  ──┐
-E-commerce API ──┼──▶  BigQuery (raw)  ──▶  dbt (staging → marts)  ──▶  Looker Studio
-CSV simulés    ──┘         ▲                        ▲
+
+Simulated CSV ────▶  BigQuery (raw)  ──▶  dbt (staging → marts)  ──▶  Looker 
+                           ▲                        ▲
                            │                        │
                         Airflow DAG          GitHub Actions CI/CD
 ```
-Couches de données (pattern Medallion)
-Couche	Description
-`raw`	Données brutes ingérées sans transformation
-`staging`	Nettoyage, typage, renommage des colonnes
-`marts`	Modèles analytiques finaux (faits & dimensions)
+
+### Data layers (Medallion pattern)
+
+| Layer | Description |
+|-------|-------------|
+| `raw` | Raw ingested data, no transformation |
+| `staging` | Cleaning, casting, column renaming |
+| `marts` | Final analytical models (facts & dimensions) |
+
 ---
-🗂️ Structure du projet
+
+## 🗂️ Project structure
+
 ```
 ecommerce-data-platform/
 ├── .github/
 │   └── workflows/
-│       └── dbt_ci.yml          # Pipeline CI/CD
+│       └── dbt_ci.yml          # CI/CD pipeline
 ├── airflow/
 │   └── dags/
 │       └── ecommerce_pipeline.py
@@ -32,31 +42,37 @@ ecommerce-data-platform/
 │   │   ├── intermediate/
 │   │   └── marts/              # fct_orders, dim_customers...
 │   └── tests/
-├── ingestion/
-│   ├── salesforce_mc/
-│   └── ecommerce_api/
 ├── data/
-│   └── seed/                   # CSV simulés
+│   └── seed/                   # Simulated CSV files
 ├── docs/
 │   └── architecture.md
 ├── .env.example
 ├── requirements.txt
 └── README.md
 ```
+
 ---
-⚙️ Prérequis
-Python 3.8+
-Google Cloud SDK (`gcloud`)
-Un projet GCP avec BigQuery activé
-Un compte GitHub
+
+## ⚙️ Prerequisites
+
+- Python 3.8+
+- Google Cloud SDK (`gcloud`)
+- A GCP project with BigQuery enabled
+- A GitHub account
+
 ---
-🚀 Installation
-1. Cloner le repo
+
+## 🚀 Installation
+
+### 1. Clone the repository
+
 ```bash
-git clone https://github.com/TON_USERNAME/ecommerce-data-platform.git
+git clone https://github.com/amandinemai/e-commerce-data-platform.git
 cd ecommerce-data-platform
 ```
-2. Créer l'environnement virtuel
+
+### 2. Create the virtual environment
+
 ```bash
 python -m venv .venv
 
@@ -66,90 +82,130 @@ python -m venv .venv
 # Mac / Linux
 source .venv/bin/activate
 ```
-3. Installer les dépendances
+
+### 3. Install dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
-4. Authentification Google Cloud
+
+### 4. Google Cloud authentication
+
 ```bash
 gcloud auth login
-gcloud config set project TON_PROJECT_ID
+gcloud config set project YOUR_PROJECT_ID
 gcloud auth application-default login
 ```
-5. Configurer dbt
+
+### 5. Configure dbt
+
 ```bash
 cd dbt
-dbt debug       # vérifie la connexion BigQuery
-dbt deps        # installe les packages dbt
+dbt debug       # check BigQuery connection
+dbt deps        # install dbt packages
 ```
+
 ---
-▶️ Lancer le pipeline
-Ingestion des données brutes
+
+## ▶️ Running the pipeline
+
+### Raw data ingestion
+
 ```bash
 python ingestion/load_to_bq.py
 ```
-Transformation dbt
+
+### dbt transformation
+
 ```bash
 cd dbt
-dbt run         # exécuter les modèles
-dbt test        # lancer les tests qualité
-dbt docs generate && dbt docs serve   # documentation interactive
+dbt run         # run models
+dbt test        # run data quality tests
+dbt docs generate && dbt docs serve   # interactive documentation
 ```
-Orchestration Airflow
+
+### Airflow orchestration
+
 ```bash
 airflow db init
 airflow webserver --port 8080
 airflow scheduler
 ```
+
 ---
-🧪 Tests qualité (dbt)
-Les tests suivants sont configurés sur chaque modèle :
-Test	Modèle	Colonne
-`unique`	`fct_orders`	`order_id`
-`not_null`	`fct_orders`	`order_id`, `order_amount`
-`not_null`	`dim_customers`	`customer_id`, `email`
-`accepted_values`	`stg_orders`	`order_status`
+
+## 🧪 Data quality tests (dbt)
+
+The following tests are configured on each model:
+
+| Test | Model | Column |
+|------|-------|--------|
+| `unique` | `fct_orders` | `order_id` |
+| `not_null` | `fct_orders` | `order_id`, `order_amount` |
+| `not_null` | `dim_customers` | `customer_id`, `email` |
+| `accepted_values` | `stg_orders` | `order_status` |
+
 ```bash
-# Lancer uniquement les tests
+# Run all tests
 dbt test
 
-# Lancer les tests sur un modèle spécifique
+# Run tests on a specific model
 dbt test --select fct_orders
 ```
+
 ---
-🔄 CI/CD — GitHub Actions
-Le pipeline CI/CD se déclenche automatiquement sur chaque pull request vers `main` :
-Installation de dbt
-Authentification GCP via secret GitHub
-`dbt run` sur l'environnement `ci`
-`dbt test` — bloque le merge si un test échoue
-Secrets GitHub à configurer :
+
+## 🔄 CI/CD — GitHub Actions
+
+The CI/CD pipeline triggers automatically on every **pull request** to `main`:
+
+1. Install dbt
+2. Authenticate to GCP via GitHub secret
+3. `dbt run` on the `ci` environment
+4. `dbt test` — blocks the merge if any test fails
+
+**GitHub secrets to configure:**
+
 ```
-GCP_SA_KEY   →  Clé JSON du service account GCP
+GCP_SA_KEY   →  JSON key of the GCP service account
 ```
+
 ---
-📊 Modèles dbt principaux
-Facts
-Modèle	Description
-`fct_orders`	Toutes les commandes avec montant, statut, date
-`fct_revenue`	Revenus agrégés par jour / pays / catégorie
-`fct_email_events`	Événements Salesforce MC (open, click, bounce)
-Dimensions
-Modèle	Description
-`dim_customers`	Profil client enrichi
-`dim_products`	Catalogue produits
-`dim_campaigns`	Campagnes marketing Salesforce MC
+
+## 📊 Main dbt models
+
+### Facts
+
+| Model | Description |
+|-------|-------------|
+| `fct_orders` | All orders with amount, status, date |
+| `fct_revenue` | Revenue aggregated by day / country / category |
+| `fct_email_events` | Salesforce MC events (open, click, bounce) |
+
+### Dimensions
+
+| Model | Description |
+|-------|-------------|
+| `dim_customers` | Enriched customer profile |
+| `dim_products` | Product catalog |
+| `dim_campaigns` | Salesforce MC marketing campaigns |
+
 ---
-🛠️ Stack technique
-Outil	Rôle
-BigQuery	Data warehouse cloud
-dbt Core	Transformation & modélisation SQL
-Airflow	Orchestration du pipeline
-Salesforce MC	Source CRM / marketing
-GitHub Actions	CI/CD automatisé
-Looker Studio	Visualisation & dashboards
-Python	Scripts d'ingestion
+
+## 🛠️ Tech stack
+
+| Tool | Role |
+|------|------|
+| **BigQuery** | Cloud data warehouse |
+| **dbt Core** | SQL transformation & modelling |
+| **Airflow** | Pipeline orchestration |
+| **GitHub Actions** | Automated CI/CD |
+| **Looker Studio** | Visualisation & dashboards |
+| **Python** | Ingestion scripts |
+
 ---
-📬 Contact
-Projet réalisé dans le cadre d'un portfolio Data Engineering.  
+
+## 📬 Contact
+
+Project built as part of a Data Engineering portfolio.  
 Amandine Mai LE — [linkedin.com/in/amandinemai](https://www.linkedin.com/in/amandinemai-le/) — amandinemai.le4@gmail.com
