@@ -220,3 +220,5 @@ __marimo__/
 target/
 logs/
 dbt_package/
+dbt/gcp_key.json
+dbt/profiles.yml
