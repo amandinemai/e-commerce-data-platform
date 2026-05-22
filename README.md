@@ -1,6 +1,6 @@
 # 🛒 E-commerce Data Platform
 
-End-to-end data pipeline for e-commerce analytics, integrating **Salesforce Marketing Cloud**, **BigQuery**, **dbt**, **Airflow** and a **CI/CD** pipeline with GitHub Actions.
+End-to-end data pipeline for e-commerce analytics, integrating **data from CSV**, **BigQuery**, **dbt**, **Airflow** and a **CI/CD** pipeline with GitHub Actions.
 
 ---
 

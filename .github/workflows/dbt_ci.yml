@@ -1,0 +1,60 @@
+name: dbt CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  dbt-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt
+        run: pip install dbt-bigquery
+
+      - name: Create dbt profiles
+        run: |
+          mkdir -p ~/.dbt
+          cat <<EOF > ~/.dbt/profiles.yml
+          ecommerce_dbt:
+            target: ci
+            outputs:
+              ci:
+                type: bigquery
+                method: service-account
+                project: friendly-anthem-496916-i5
+                dataset: dbt_ci
+                threads: 4
+                location: EU
+                keyfile_json: ${{ secrets.GCP_SA_KEY }}
+          EOF
+
+      - name: Run dbt deps
+        run: |
+          cd dbt
+          dbt deps
+
+      - name: Run dbt seed
+        run: |
+          cd dbt
+          dbt seed --target ci
+
+      - name: Run dbt models
+        run: |
+          cd dbt
+          dbt run --target ci
+
+      - name: Run dbt tests
+        run: |
+          cd dbt
+          dbt test --target ci
